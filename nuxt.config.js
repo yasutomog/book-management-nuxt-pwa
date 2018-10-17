@@ -73,6 +73,7 @@ module.exports = {
   mode: 'spa',
   workbox: {
     dev: false, //開発環境でもPWA
-  }
+  },
+  plugins: [{ src: '~/plugins/routerOption.js', ssr: false }]
 }
 

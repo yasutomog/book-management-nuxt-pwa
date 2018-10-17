@@ -3,7 +3,7 @@
     <div
             v-show="bottomNav === 'books'"
     >
-      <section class="container">
+      <section class="filter">
         <v-layout row wrap>
           <v-flex xs8 sm8>
             <v-text-field
@@ -28,33 +28,30 @@
         <v-list two-line>
           <template v-for="(item, index) in books">
             <v-list-tile
-                    :key="'book' + item.book_id"
+                    :key="item.book_id"
                     avatar
-                    @click="toggle(index)"
+                    @click="clickListItem(item.book_id)"
             >
               <v-list-tile-content>
                 <v-list-tile-title>{{ item.title }}</v-list-tile-title>
                 <v-list-tile-sub-title class="text--primary">{{ item.publisher }}</v-list-tile-sub-title>
-                <v-list-tile-sub-title>
-                  <v-chip
-                          label
-                          outline
-                          color="red"
-                          small>貸出中</v-chip>
-                  <v-chip label outline color="red" small>NEW</v-chip>
-                  <v-chip label outline color="red" small>人気</v-chip>
-                </v-list-tile-sub-title>
+                <v-list-tile-sub-title>{{ item.anthor }}</v-list-tile-sub-title>
+                <!--<v-list-tile-sub-title>-->
+                  <!--<v-chip label outline color="red" small v-show="item.isLending">貸出中</v-chip>-->
+                  <!--<v-chip label outline color="red" small v-show="item.isNew">NEW</v-chip>-->
+                  <!--<v-chip label outline color="red" small v-show="item.isExpired">期限切れ</v-chip>-->
+                <!--</v-list-tile-sub-title>-->
               </v-list-tile-content>
               <v-list-tile-action>
                 <v-btn
-                        :loading="loading3"
-                        @click.native="loader = 'loading3'"
-                        :disabled="loading3"
+                        :loading="loadingBookId === item.book_id"
+                        @click.stop="clickBtn(item.book_id, item.isLending)"
+                        :disabled="loadingBookId === item.book_id"
                         color="success"
                         class="white--text"
                         ripple
                         x-large
-                        v-show="item.isLending"
+                        v-show="!item.isLending"
                 >
                   借りる
                   <v-icon
@@ -65,14 +62,14 @@
                   </v-icon>
                 </v-btn>
                 <v-btn
-                        :loading="loading3"
-                        @click.native="loader = 'loading3'"
-                        :disabled="loading3"
+                        :loading="loadingBookId === item.book_id"
+                        @click.stop="clickBtn(item.book_id, item.isLending)"
+                        :disabled="loadingBookId === item.book_id"
                         color="error"
                         class="white--text"
                         ripple
                         x-large
-                        v-show="!item.isLending"
+                        v-show="item.isLending"
                 >
                   返却
                   <v-icon
@@ -86,6 +83,7 @@
             </v-list-tile>
             <v-divider
                     v-if="index + 1 < books.length"
+                    :key="'d' + index"
             ></v-divider>
           </template>
         </v-list>
@@ -141,87 +139,79 @@
     data () {
       return {
         search: '',
-        isLending: null,
-        loader: null,
-        loading3: false,
+        isLending: false,
+        loadingBookId: null,
         bottomNav: 'books'
       }
     },
     mounted() {
-      this.$store.dispatch('getBooks')
+      this.$store.dispatch('getBooks').catch((err) => {
+        this.$router.push('/')
+      });
     },
     computed: {
       books() {
         let vm = this
-        let search = vm.search
+        let search = vm.search,
+          isLending = vm .isLending
+
         let filtered = this.$store.state.books.filter((book) => {
-          return (book.title.indexOf(search) !== -1)
+
+          if (((book.title.indexOf(search) !== -1) || (book.publisher.indexOf(search) !== -1) || (book.anthor.indexOf(search) !== -1))) {
+
+            if (isLending) {
+
+              return book.isLending
+
+            } else {
+
+              return true
+
+            }
+
+          } else {
+
+            return false
+
+          }
+
         })
-        // ボタンのローディング
-        // ボタンのローダー
-        // タグ情報（NEW、期限切れ）
+
         return filtered;
       }
     },
     methods: {
-      toggle (index) {
-        // const i = this.selected.indexOf(index)
-        //
-        // if (i > -1) {
-        //   this.selected.splice(i, 1)
-        // } else {
-        //   this.selected.push(index)
-        // }
+      clickListItem (bookId) {
+        console.log('clickListItem');
+      },
+      clickBtn(bookId, isLending) {
+        // TODO isLendingによってAPI振り分ける
+        const vm = this,
+          targetBookId = vm.books.findIndex(item => item.book_id === bookId)
+
+        vm.loadingBookId = bookId
+
+        setTimeout(() => {
+          vm.loadingBookId = null
+          vm.books[targetBookId]['isLending'] = !isLending
+        }, 3000)
       }
     },
     watch: {
-      loader () {
-        const l = this.loader
-        this[l] = !this[l]
-
-        setTimeout(() => (this[l] = false), 3000)
-
-        this.loader = null
-      }
+      // loader () {
+      //   const l = this.loader
+      //   this[l] = !this[l]
+      //
+      //   setTimeout(() => (this[l] = false), 3000)
+      //
+      //   this.loader = null
+      // }
     }
   }
 </script>
 <style lang="scss" scoped>
-  .custom-loader {
-    animation: loader 1s infinite;
-    display: flex;
-  }
-  @-moz-keyframes loader {
-    from {
-      transform: rotate(0);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  @-webkit-keyframes loader {
-    from {
-      transform: rotate(0);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  @-o-keyframes loader {
-    from {
-      transform: rotate(0);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  @keyframes loader {
-    from {
-      transform: rotate(0);
-    }
-    to {
-      transform: rotate(360deg);
-    }
+  .filter {
+    padding: 72px 16px 16px;
   }
   .v-btn .v-icon--right {
     margin-left: 6px;
@@ -231,11 +221,11 @@
   }
   .v-list {
     padding: 0;
-    > div {
-      padding: 8px 0;
-      button {
-        height: 54px;
-      }
+    button {
+      height: 56px;
     }
+  }
+  .v-chip {
+    margin: 6px 4px;
   }
 </style>

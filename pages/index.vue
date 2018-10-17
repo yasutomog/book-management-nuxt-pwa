@@ -8,16 +8,8 @@
       <h2 class="subtitle">
         Nuxt.js project
       </h2>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          class="button--green">Documentation</a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          class="button--grey">GitHub</a>
-      </div>
+      <router-link to="/user">Go to User</router-link>
+      <a href="http://localhost:9090/" target="_blank">Go to Sign in G Suite</a>
     </div>
   </section>
 </template>
@@ -26,6 +18,18 @@
 import AppLogo from '~/components/AppLogo.vue'
 
 export default {
+  mounted() {
+    fetch('http://localhost:9090/api/auth.php').then((response) => {
+      if (response.status === 401) {
+        this.$router.push('/')
+      } else {
+        this.$router.push('/user')
+      }
+    })
+  },
+  activated() {
+    console.log('activated');
+  },
   components: {
     AppLogo
   }
