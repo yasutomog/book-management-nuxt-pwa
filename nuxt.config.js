@@ -62,13 +62,70 @@ module.exports = {
   manifest: {
     name: 'book-management',
     lang: 'ja',
-    short_name: 'bm',
-    title: '図書管理',
-    'og:title': '図書管理',
-    description: '図書管理',
-    'og:description': '図書管理',
-    theme_color: '#ffffff',
-    background_color: '#ffffff'
+    short_name: 'TBBooks',
+    icons: [
+      {
+        "src": "/book-management-nuxt-pwa/android-chrome-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/book-management-nuxt-pwa/android-chrome-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      },
+      {
+        "src": "/book-management-nuxt-pwa/apple-touch-icon.png",
+        "sizes": "180x180",
+        "type": "image/png"
+      },
+      {
+        "src": "/book-management-nuxt-pwa/apple-touch-icon-60x60.png",
+        "sizes": "60x60",
+        "type": "image/png"
+      },
+      {
+        "src": "/book-management-nuxt-pwa/apple-touch-icon-76x76.png",
+        "sizes": "76x76",
+        "type": "image/png"
+      },
+      {
+        "src": "/book-management-nuxt-pwa/apple-touch-icon-120x120.png",
+        "sizes": "120x120",
+        "type": "image/png"
+      },
+      {
+        "src": "/book-management-nuxt-pwa/apple-touch-icon-152x152.png",
+        "sizes": "152x152",
+        "type": "image/png"
+      },
+      {
+        "src": "/book-management-nuxt-pwa/apple-touch-icon-180x180.png",
+        "sizes": "180x180",
+        "type": "image/png"
+      },
+      {
+        "src": "/book-management-nuxt-pwa/favicon-16x16.png",
+        "sizes": "16x16",
+        "type": "image/png"
+      },
+      {
+        "src": "/book-management-nuxt-pwa/favicon-32x32.png",
+        "sizes": "32x32",
+        "type": "image/png"
+      },
+      {
+        "src": "/book-management-nuxt-pwa/msapplication-icon-144x144.png",
+        "sizes": "144x144",
+        "type": "image/png"
+      },
+      {
+        "src": "/book-management-nuxt-pwa/mstile-150x150.png",
+        "sizes": "150x150",
+        "type": "image/png"
+      }
+    ]
+
   },
   mode: 'spa',
   workbox: {
