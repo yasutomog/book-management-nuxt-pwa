@@ -3,14 +3,17 @@ import Vuex from 'vuex'
 const store = () => new Vuex.Store({
 
   state: {
-    counter: 0,
-    hoge: '',
-    books: []
+    books: [],
+    loginInfo: null
   },
   actions: {
-    getBooks({ commit, state }, data) {
-      // TODO api request
-      return fetch('http://localhost:9090/api/books.php').then((response) => {
+    setLoginUserInfo({ commit, state }, loginUserInfo) {
+      commit('setLoginUserInfo', loginUserInfo)
+    },
+    getBooks({ commit, state }, loginId) {
+      const params = new URLSearchParams()
+      params.set('loginId', loginId)
+      return fetch('http://localhost:9090/api/books.php?' + params.toString()).then((response) => {
         if (!response.ok) {
           throw new Error(response.status)
         } else {
@@ -22,8 +25,8 @@ const store = () => new Vuex.Store({
     }
   },
   mutations: {
-    increment (state) {
-      state.counter++
+    setLoginUserInfo(state, loginUserInfo) {
+      state.loginInfo = loginUserInfo
     },
     getBooks(state, json) {
       json.forEach((book) => {
@@ -50,6 +53,7 @@ const store = () => new Vuex.Store({
 
         // 返却期限切れ（貸出から1ヶ月以上経過）の判定
         book.isExpired = false
+        book.isMine = false
         if (book.isLending) {
           let lendDate = new Date(book.max_lend_date),
             lendMonthLater = lendDate.setMonth(lendDate.getMonth() + 1),
@@ -58,6 +62,9 @@ const store = () => new Vuex.Store({
           if (currentMilliSec > lendMonthLater) {
             book.isExpired = true
           }
+
+          book.isMine = (book.google_id === state.loginInfo.google_id)
+
         }
 
       })

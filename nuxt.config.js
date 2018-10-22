@@ -125,11 +125,10 @@ module.exports = {
         "type": "image/png"
       }
     ]
-
   },
   mode: 'spa',
   workbox: {
-    dev: false, //開発環境でもPWA
+    dev: true
   },
   plugins: [{ src: '~/plugins/routerOption.js', ssr: false }]
 }

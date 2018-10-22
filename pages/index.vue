@@ -19,16 +19,30 @@ import AppLogo from '~/components/AppLogo.vue'
 
 export default {
   mounted() {
-    fetch('http://localhost:9090/api/auth.php').then((response) => {
-      if (response.status === 401) {
-        this.$router.push('/')
-      } else {
-        this.$router.push('/user')
+
+    const cookie = document.cookie.split(';'),
+      loginIdRow = cookie.find(r => r.trim().indexOf('login_id') === 0)
+
+    let loginId;
+    if (loginIdRow) {
+      loginId = loginIdRow.split('=')[1]
+    }
+
+    if (!loginId) {
+      return
+    }
+
+    const params = new URLSearchParams()
+    params.set('loginId', loginId)
+    fetch('http://localhost:9090/api/auth.php?' + params.toString()).then((response) => {
+      if (response.ok) {
+        return response.json();
       }
+    }).then((loginUserInfo) => {
+      this.$store.dispatch('setLoginUserInfo', loginUserInfo)
+      this.$router.push('/user')
     })
-  },
-  activated() {
-    console.log('activated');
+
   },
   components: {
     AppLogo
