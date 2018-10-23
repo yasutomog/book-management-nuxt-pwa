@@ -130,6 +130,9 @@ module.exports = {
   workbox: {
     dev: true
   },
-  plugins: [{ src: '~/plugins/routerOption.js', ssr: false }]
+  plugins: [{ src: '~/plugins/routerOption.js', ssr: false }],
+  env: {
+    API_URL: 'http://localhost:9090'
+  }
 }
 

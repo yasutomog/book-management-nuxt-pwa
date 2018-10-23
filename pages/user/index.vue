@@ -1,25 +1,11 @@
 <template>
   <div>
-    <v-layout v-scroll="onScroll" column align-center justify-center>
-    </v-layout>
-    <v-layout
-            v-touch="{
-        left: () => swipe('Left'),
-        right: () => swipe('Right'),
-        up: () => swipe('Up'),
-        down: () => swipe('Down')
-      }"
-            column
-            align-center
-            justify-center
-    >
-    </v-layout>
     <div
             v-show="bottomNav === 'books'"
     >
       <section class="filter">
         <v-layout row wrap>
-          <v-flex xs8 sm8>
+          <v-flex xs7 sm7>
             <v-text-field
                     label="書籍名"
                     append-icon="search"
@@ -36,6 +22,11 @@
                     v-model="isLending"
             ></v-checkbox>
           </v-flex>
+          <v-flex xs1 sm1>
+            <v-btn icon class="create" @click="clickNewBtn">
+              <v-icon color="grey darken-1" left large>add_box</v-icon>
+            </v-btn>
+          </v-flex>
         </v-layout>
       </section>
       <section class="book-list">
@@ -44,7 +35,8 @@
             <v-list-tile
                     :key="item.book_id"
                     avatar
-                    @dblclick="dblclickItem(item.book_id)"
+                    ripple
+                    @click="dblclickItem(item.book_id)"
             >
               <v-list-tile-content>
                 <v-list-tile-title>{{ item.title }}</v-list-tile-title>
@@ -63,12 +55,7 @@
                         v-show="!item.isLending"
                 >
                   借りる
-                  <v-icon
-                          right
-                          dark
-                  >
-                    redo
-                  </v-icon>
+                  <v-icon right dark>redo</v-icon>
                 </v-btn>
                 <v-btn
                         :loading="loadingBookId === item.book_id"
@@ -81,12 +68,7 @@
                         v-show="item.isLending && item.isMine"
                 >
                   返却
-                  <v-icon
-                          right
-                          dark
-                  >
-                    undo
-                  </v-icon>
+                  <v-icon right dark>undo</v-icon>
                 </v-btn>
                 <v-btn
                         color="#90A4AE"
@@ -122,7 +104,8 @@
             <v-list-tile
                     :key="item.book_id"
                     avatar
-                    @dblclick="dblclickItem(item.book_id)"
+                    ripple
+                    @click="dblclickItem(item.book_id)"
             >
               <v-list-tile-content>
                 <v-list-tile-title>{{ item.title }}</v-list-tile-title>
@@ -268,14 +251,14 @@
     >
       <v-card tile>
         <v-toolbar card dark color="grey darken-1">
-          <v-toolbar-title>書籍の編集</v-toolbar-title>
+          <v-toolbar-title>書籍の{{editorBook.headerTitle}}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-btn icon dark @click.native="showEditor = false">
             <v-icon>close</v-icon>
           </v-btn>
         </v-toolbar>
         <v-card-text>
-          <v-form v-model="editorBook.valid">
+          <v-form ref="form" v-model="editorBook.valid" lazy-validation>
             <v-text-field
                     v-model="editorBook.title"
                     :rules="editorBook.titleRules"
@@ -329,7 +312,14 @@
                     prepend-icon="exposure_zero"
                     required
             ></v-text-field>
-            <v-btn block color="#26A69A" :dark="editorBook.valid" :disabled="!editorBook.valid">保存</v-btn>
+            <v-btn block color="#26A69A" :dark="editorBook.valid" :disabled="!editorBook.valid" @click="clickSave">
+              保存
+              <v-icon right dark>save</v-icon>
+            </v-btn>
+            <v-btn block color="#FF8A65" dark v-show="editorBook.showDeleteBtn" @click="clickDelete">
+              削除
+              <v-icon right dark>delete</v-icon>
+            </v-btn>
           </v-form>
         </v-card-text>
         <div style="flex: 1 1 auto;"></div>
@@ -339,42 +329,45 @@
 </template>
 <script>
   export default {
+    asyncData (context) {
+      return context.env
+    },
     data () {
       return {
         showEditor: false,
         editorBook: {
           valid: false,
-          bookId: null,
+          bookId: '',
           title: '',
           titleRules: [
             v => !!v || 'タイトルを入力してください',
-            v => v.length <= 100 || 'タイトルは100文字以内で入力してください'
+            v => (v && v.length <= 100) || 'タイトルは100文字以内で入力してください'
           ],
           anthor: '',
           anthorRules: [
             v => !!v || '著者を入力してください',
-            v => v.length <= 40 || '著者は40文字以内で入力してください'
+            v => (v && v.length <= 40) || '著者は40文字以内で入力してください'
           ],
           publiction: '',
           publictionRules: [
             v => !!v || '出版日を入力してください',
-            v => v.length <= 10 || '出版日は40文字以内で入力してください'
+            v => (v && v.length <= 10) || '出版日は40文字以内で入力してください'
           ],
           publictionMenu: false,
           publisher: '',
           publisherRules: [
             v => !!v || '出版社を入力してください',
-            v => v.length <= 150 || '出版社は150文字以内で入力してください'
+            v => (v && v.length <= 150) || '出版社は150文字以内で入力してください'
           ],
           isbn: '',
           isbnRules: [
             v => !!v || 'ISBNを入力してください',
-            v => v.toString(10).length <= 30 || '出版社は30文字以内で入力してください',
-            v => !!v.toString(10).match(/^[0-9\-]+$/) || '半角数値とハイフンで入力してください'
+            v => (v && v.toString(10).length <= 30) || '出版社は30文字以内で入力してください',
+            v => (v && !!v.toString(10).match(/^[0-9\-]+$/)) || '半角数値とハイフンで入力してください'
           ],
+          showDeleteBtn: true,
+          headerTitle: '編集'
         },
-        swipeDirection: 'None',
-        offsetTop: 0,
         search: '',
         isLending: false,
         loadingBookId: null,
@@ -451,7 +444,6 @@
           targetBookId = vm.books.findIndex(item => item.book_id === bookId),
           targetBook = vm.books[targetBookId]
 
-        // vm.editorBook.valid = false
         vm.editorBook.bookId = targetBook.book_id
         vm.editorBook.title = targetBook.title
         vm.editorBook.anthor = targetBook.anthor
@@ -459,6 +451,9 @@
         vm.editorBook.publictionMenu = false
         vm.editorBook.publisher = targetBook.publisher
         vm.editorBook.isbn = targetBook.isbn
+
+        vm.editorBook.showDeleteBtn = true
+        vm.editorBook.headerTitle = '編集'
 
         vm.showEditor = true
       },
@@ -483,7 +478,10 @@
       },
       getBooks() {
         const loginId = this.$store.state.loginInfo.login_id
-        this.$store.dispatch('getBooks', loginId).catch((err) => {
+        this.$store.dispatch('getBooks', {
+          loginId: loginId,
+          apiBaseUrl: this.API_URL
+        }).catch((err) => {
           this.$router.push('/')
         })
       },
@@ -492,12 +490,12 @@
         const vm = this,
           bookId = targetBook['book_id']
 
-        fetch('http://localhost:9090/api/borrow.php', {
+        fetch(this.API_URL + '/api/borrow.php', {
           method: 'POST',
           body: JSON.stringify({
             bookId: bookId,
             loginId: loginId
-          }),
+          })
         }).then((res) => {
           if (res.ok) {
             this.getBooks()
@@ -517,12 +515,12 @@
         const vm = this,
           lbId = targetBook['max_id']
 
-        fetch('http://localhost:9090/api/return.php', {
+        fetch(this.API_URL + '/api/return.php', {
           method: 'POST',
           body: JSON.stringify({
             lbId: lbId,
             loginId: loginId
-          }),
+          })
         }).then((res) => {
           vm.loadingBookId = null
           if (res.ok) {
@@ -538,13 +536,69 @@
         })
 
       },
-      onScroll (e) {
-        this.offsetTop = window.pageYOffset || document.documentElement.scrollTop
-        console.log(this.offsetTop);
+      clickSave() {
+        const vm = this,
+          editorBook = vm.editorBook,
+          loginId = this.$store.state.loginInfo.login_id
+
+        fetch(this.API_URL + '/api/edit.php', {
+          method: 'POST',
+          body: JSON.stringify({
+            loginId: loginId,
+            bookId: editorBook.bookId,
+            title: editorBook.title,
+            anthor: editorBook.anthor,
+            publiction: editorBook.publiction,
+            publisher: editorBook.publisher,
+            isbn: editorBook.isbn
+          })
+        }).then((res) => {
+          if (res.ok) {
+            vm.getBooks()
+            vm.showEditor = false
+          } else {
+            throw new Error()
+          }
+        }).catch(() => {
+          vm.dialog = true
+          vm.dialogMsg = '書籍の編集に失敗しました'
+        }).finally(() => {
+        })
+
       },
-      swipe (direction) {
-        this.swipeDirection = direction
-        console.log(this.swipeDirection);
+      clickDelete() {
+        const vm = this,
+          editorBook = vm.editorBook,
+          loginId = this.$store.state.loginInfo.login_id
+
+        fetch(this.API_URL + '/api/delete.php', {
+          method: 'POST',
+          body: JSON.stringify({
+            loginId: loginId,
+            bookId: editorBook.bookId
+          })
+        }).then((res) => {
+          if (res.ok) {
+            vm.getBooks()
+            vm.showEditor = false
+          } else {
+            throw new Error()
+          }
+        }).catch(() => {
+          vm.dialog = true
+          vm.dialogMsg = '書籍の削除に失敗しました'
+        }).finally(() => {
+        })
+      },
+      clickNewBtn() {
+        const vm = this
+
+        vm.editorBook.showDeleteBtn = false
+        vm.editorBook.headerTitle = '登録'
+
+        this.$refs.form.reset()
+
+        vm.showEditor = true
       }
     }
   }
@@ -579,5 +633,8 @@
   }
   .v-form button {
     margin-top: 24px;
+  }
+  .create.v-btn.v-btn--icon.theme--light {
+    margin-top: 12px;
   }
 </style>

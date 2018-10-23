@@ -10,10 +10,10 @@ const store = () => new Vuex.Store({
     setLoginUserInfo({ commit, state }, loginUserInfo) {
       commit('setLoginUserInfo', loginUserInfo)
     },
-    getBooks({ commit, state }, loginId) {
+    getBooks({ commit, state }, p) {
       const params = new URLSearchParams()
-      params.set('loginId', loginId)
-      return fetch('http://localhost:9090/api/books.php?' + params.toString()).then((response) => {
+      params.set('loginId', p.loginId)
+      return fetch(p.apiBaseUrl + '/api/books.php?' + params.toString()).then((response) => {
         if (!response.ok) {
           throw new Error(response.status)
         } else {

@@ -9,7 +9,7 @@
         Nuxt.js project
       </h2>
       <router-link to="/user">Go to User</router-link>
-      <a href="http://localhost:9090/" target="_blank">Go to Sign in G Suite</a>
+      <a :href="API_URL" target="_blank">Go to Sign in G Suite</a>
     </div>
   </section>
 </template>
@@ -18,6 +18,9 @@
 import AppLogo from '~/components/AppLogo.vue'
 
 export default {
+  asyncData (context) {
+    return context.env
+  },
   mounted() {
 
     const cookie = document.cookie.split(';'),
@@ -34,7 +37,7 @@ export default {
 
     const params = new URLSearchParams()
     params.set('loginId', loginId)
-    fetch('http://localhost:9090/api/auth.php?' + params.toString()).then((response) => {
+    fetch(this.API_URL + '/api/auth.php?' + params.toString()).then((response) => {
       if (response.ok) {
         return response.json();
       }
