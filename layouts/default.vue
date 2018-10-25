@@ -1,7 +1,6 @@
 <template>
   <div id="app">
     <v-app>
-      <!--<my-header />-->
       <v-toolbar color="grey darken-1" dark flat fixed>
         <v-toolbar-side-icon></v-toolbar-side-icon>
         <v-spacer></v-spacer>
@@ -10,7 +9,6 @@
         </v-btn>
       </v-toolbar>
       <nuxt />
-      <!--<my-footer />-->
     </v-app>
   </div>
 </template>

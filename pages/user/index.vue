@@ -1,203 +1,8 @@
 <template>
   <div>
-    <div
-            v-show="bottomNav === 'books'"
-    >
-      <section class="filter">
-        <v-layout row wrap>
-          <v-flex xs7 sm7>
-            <v-text-field
-                    label="書籍名"
-                    append-icon="search"
-                    clearable
-                    v-model="search"
-            ></v-text-field>
-          </v-flex>
-          <v-flex xs1 sm1>
-            <v-spacer></v-spacer>
-          </v-flex>
-          <v-flex xs3 sm3>
-            <v-checkbox
-                    label="貸出中"
-                    v-model="isLending"
-            ></v-checkbox>
-          </v-flex>
-          <v-flex xs1 sm1>
-            <v-btn icon class="create" @click="clickNewBtn">
-              <v-icon color="grey darken-1" left large>add_box</v-icon>
-            </v-btn>
-          </v-flex>
-        </v-layout>
-      </section>
-      <section class="book-list">
-        <v-list two-line>
-          <template v-for="(item, index) in books">
-            <v-list-tile
-                    :key="item.book_id"
-                    avatar
-                    ripple
-                    @click="dblclickItem(item.book_id)"
-            >
-              <v-list-tile-content>
-                <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                <v-list-tile-sub-title class="text--primary">{{ item.publisher }}</v-list-tile-sub-title>
-                <v-list-tile-sub-title>{{ item.anthor }}</v-list-tile-sub-title>
-              </v-list-tile-content>
-              <v-list-tile-action>
-                <v-btn
-                        :loading="loadingBookId === item.book_id"
-                        @click.stop="clickBtn(item.book_id, item.isLending)"
-                        :disabled="loadingBookId === item.book_id"
-                        color="#26A69A"
-                        class="white--text"
-                        ripple
-                        x-large
-                        v-show="!item.isLending"
-                >
-                  借りる
-                  <v-icon right dark>redo</v-icon>
-                </v-btn>
-                <v-btn
-                        :loading="loadingBookId === item.book_id"
-                        @click.stop="clickBtn(item.book_id, item.isLending)"
-                        :disabled="loadingBookId === item.book_id"
-                        color="#FF8A65"
-                        class="white--text"
-                        ripple
-                        x-large
-                        v-show="item.isLending && item.isMine"
-                >
-                  返却
-                  <v-icon right dark>undo</v-icon>
-                </v-btn>
-                <v-btn
-                        color="#90A4AE"
-                        class="white--text"
-                        ripple
-                        x-large
-                        v-show="item.isLending && !item.isMine"
-                >
-                  貸出中
-                  <v-icon
-                          right
-                          dark
-                  >
-                    not_interested
-                  </v-icon>
-                </v-btn>
-              </v-list-tile-action>
-            </v-list-tile>
-            <v-divider
-                    v-if="index + 1 < books.length"
-                    :key="'d' + index"
-            ></v-divider>
-          </template>
-        </v-list>
-      </section>
-    </div>
-    <div
-            v-show="bottomNav === 'mylist'"
-    >
-      <section class="book-list mybooks">
-        <v-list two-line>
-          <template v-for="(item, index) in myBooks">
-            <v-list-tile
-                    :key="item.book_id"
-                    avatar
-                    ripple
-                    @click="dblclickItem(item.book_id)"
-            >
-              <v-list-tile-content>
-                <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                <v-list-tile-sub-title class="text--primary">{{ item.publisher }}</v-list-tile-sub-title>
-                <v-list-tile-sub-title>{{ item.anthor }}</v-list-tile-sub-title>
-              </v-list-tile-content>
-              <v-list-tile-action>
-                <v-btn
-                        :loading="loadingBookId === item.book_id"
-                        @click.stop="clickBtn(item.book_id, item.isLending)"
-                        :disabled="loadingBookId === item.book_id"
-                        color="#26A69A"
-                        class="white--text"
-                        ripple
-                        x-large
-                        v-show="!item.isLending"
-                >
-                  借りる
-                  <v-icon
-                          right
-                          dark
-                  >
-                    redo
-                  </v-icon>
-                </v-btn>
-                <v-btn
-                        :loading="loadingBookId === item.book_id"
-                        @click.stop="clickBtn(item.book_id, item.isLending)"
-                        :disabled="loadingBookId === item.book_id"
-                        color="#FF8A65"
-                        class="white--text"
-                        ripple
-                        x-large
-                        v-show="item.isLending && item.isMine"
-                >
-                  返却
-                  <v-icon
-                          right
-                          dark
-                  >
-                    undo
-                  </v-icon>
-                </v-btn>
-                <v-btn
-                        color="#90A4AE"
-                        class="white--text"
-                        ripple
-                        x-large
-                        v-show="item.isLending && !item.isMine"
-                >
-                  貸出中
-                  <v-icon
-                          right
-                          dark
-                  >
-                    not_interested
-                  </v-icon>
-                </v-btn>
-              </v-list-tile-action>
-            </v-list-tile>
-            <v-divider
-                    v-if="index + 1 < books.length"
-                    :key="'d' + index"
-            ></v-divider>
-          </template>
-        </v-list>
-      </section>
-    </div>
-    <div
-            v-show="bottomNav === 'expired'"
-    >
-      <section class="book-list mybooks">
-        <v-list two-line>
-          <template v-for="(item, index) in expiredBooks">
-            <v-list-tile
-                    :key="item.book_id"
-                    avatar
-            >
-              <v-list-tile-content>
-                <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                <v-list-tile-sub-title class="text--primary">{{ item.publisher }}</v-list-tile-sub-title>
-                <v-list-tile-sub-title class="text--primary expired">{{ item.user_name }}</v-list-tile-sub-title>
-              </v-list-tile-content>
-            </v-list-tile>
-            <v-divider
-                    v-if="index + 1 < books.length"
-                    :key="'d' + index"
-            ></v-divider>
-          </template>
-        </v-list>
-      </section>
-    </div>
+    <book-list :bottomNav="bottomNav" @click-new-btn="clickNewBtn" @click-item="dblclickItem" @click-btn="clickBtn"></book-list>
+    <my-list :bottomNav="bottomNav" @click-item="dblclickItem" @click-btn="clickBtn"></my-list>
+    <expired-list :bottomNav="bottomNav"></expired-list>
     <v-bottom-nav
             :active.sync="bottomNav"
             :value="true"
@@ -212,7 +17,6 @@
         <span>書籍一覧</span>
         <v-icon>library_books</v-icon>
       </v-btn>
-
       <v-btn
               color="teal"
               flat
@@ -221,7 +25,6 @@
         <span>マイリスト</span>
         <v-icon>list</v-icon>
       </v-btn>
-
       <v-btn
               color="teal"
               flat
@@ -328,6 +131,11 @@
   </div>
 </template>
 <script>
+
+  import BookList from '~/components/BookList.vue'
+  import MyList from '~/components/MyList.vue'
+  import ExpiredList from '~/components/ExpiredList.vue'
+
   export default {
     asyncData (context) {
       return context.env
@@ -600,41 +408,16 @@
 
         vm.showEditor = true
       }
+    },
+    components: {
+      BookList,
+      MyList,
+      ExpiredList
     }
   }
 </script>
 <style lang="scss" scoped>
-  .filter {
-    padding: 72px 16px 16px;
-  }
-  .v-btn .v-icon--right {
-    margin-left: 6px;
-  }
-  .book-list {
-    padding-bottom: 56px;
-    &.mybooks {
-      padding: 72px 16px 16px;
-    }
-    &.expiredbooks {
-      padding: 72px 16px 16px;
-    }
-  }
-  .v-list {
-    padding: 0;
-    button {
-      height: 56px;
-    }
-  }
-  .v-chip {
-    margin: 6px 4px;
-  }
-  .theme--light.application .text--primary.expired {
-    color: #ff5252 !important;
-  }
   .v-form button {
     margin-top: 24px;
-  }
-  .create.v-btn.v-btn--icon.theme--light {
-    margin-top: 12px;
   }
 </style>

@@ -2,11 +2,11 @@
   <section class="container">
     <div>
       <img src="~/assets/tribeat_logo.png" width="300" height="133" />
-      <v-btn block color="#26A69A" dark @click="clickBooks">
+      <v-btn block round outline color="grey darken-1" dark @click="clickBooks">
         書籍一覧へ
         <v-icon right dark>library_books</v-icon>
       </v-btn>
-      <v-btn block color="#FF8A65" dark :href="authUrl" target="_blank">
+      <v-btn block round outline color="grey darken-1" dark :href="authUrl" target="_blank">
         Google認証へ
         <v-icon right dark>lock_open</v-icon>
       </v-btn>
@@ -103,7 +103,7 @@ export default {
     padding-top: 15px;
   }
   .v-btn {
-    margin-top: 16px;
+    margin-top: 24px;
   }
 </style>
 
