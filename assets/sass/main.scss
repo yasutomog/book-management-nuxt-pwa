@@ -22,3 +22,20 @@
 .page-enter, .page-leave-to {
   opacity: 0;
 }
+.v-expansion-panel__header {
+  padding: 0;
+  background-color: #fafafa;
+}
+.v-expansion-panel__body {
+  padding: 0;
+  background-color: #fafafa;
+  i {
+    font-size: 18px;
+  }
+  label {
+    font-size: 14px;
+  }
+  .v-input__slot {
+    margin-bottom: 0;
+  }
+}

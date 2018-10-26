@@ -19,16 +19,17 @@
           </v-btn>
         </v-flex>
       </v-layout>
+      <v-layout row wrap class="dtl-filter">
+        <v-expansion-panel>
+          <v-expansion-panel-content>
+            <div slot="header" class="dtl-filter-header">詳細条件</div>
+            <div class="dtl-filter-body" color="#fafafa">
+              <v-checkbox label="レンタル中" v-model="isLending"></v-checkbox>
+            </div>
+          </v-expansion-panel-content>
+        </v-expansion-panel>
+      </v-layout>
     </section>
-    <v-expansion-panel>
-      <v-expansion-panel-content>
-        <div slot="header">詳細条件</div>
-        <v-card class="dtl-filter-body">
-          <v-checkbox label="レンタル中" v-model="isLending"
-          ></v-checkbox>
-        </v-card>
-      </v-expansion-panel-content>
-    </v-expansion-panel>
     <section class="book-list">
       <v-list two-line>
         <template v-for="(item, index) in books">
@@ -157,5 +158,22 @@
   }
   .create.v-btn.v-btn--icon.theme--light {
     margin-top: 12px;
+  }
+  .dtl-filter {
+    > ul {
+      box-shadow: none;
+      font-size: 14px;
+    }
+  }
+  .dtl-filter-header {
+    background-color: #fafafa;
+    color: #757575;
+  }
+  .v-expansion-panel__body > div {
+    padding: 0;
+    > div {
+      margin-top: 0;
+      padding-top: 0;
+    }
   }
 </style>

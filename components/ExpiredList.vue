@@ -10,7 +10,10 @@
             <v-list-tile-content>
               <v-list-tile-title>{{ item.title }}</v-list-tile-title>
               <v-list-tile-sub-title class="text--primary">{{ item.publisher }}</v-list-tile-sub-title>
-              <v-list-tile-sub-title class="text--primary expired">{{ item.user_name }}</v-list-tile-sub-title>
+              <v-list-tile-sub-title class="text--primary">
+                <span>{{ item.max_lend_date }} </span> に
+                <span> {{ item.user_name }} </span> がレンタル開始
+              </v-list-tile-sub-title>
             </v-list-tile-content>
           </v-list-tile>
           <v-divider v-if="index + 1 < expiredBooks.length" :key="'d' + index"></v-divider>
@@ -44,7 +47,7 @@
   .book-list {
     padding: 56px 0 56px;
   }
-  .theme--light.application .text--primary.expired {
+  .theme--light.application .text--primary span {
     color: #ff5252 !important;
   }
 </style>
