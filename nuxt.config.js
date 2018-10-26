@@ -1,6 +1,6 @@
 const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
   router: {
-    base: '/pwa/'
+    base: '/book-management-nuxt-pwa/'
   }
 } : {}
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
   ** Headers of the page
   */
   head: {
-    title: 'book-management',
+    title: 'book-management-nuxt-pwa',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -132,7 +132,7 @@ module.exports = {
   },
   plugins: [{ src: '~/plugins/routerOption.js', ssr: false }],
   env: {
-    API_URL: 'http://localhost:9090'
+    API_URL: ''
   }
 }
 
