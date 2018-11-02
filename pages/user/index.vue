@@ -1,8 +1,8 @@
 <template>
   <div>
-    <book-list :bottomNav="bottomNav" @click-new-btn="clickNewBtn" @click-item="dblclickItem" @click-btn="clickBtn"></book-list>
-    <my-list :bottomNav="bottomNav" @click-item="dblclickItem" @click-btn="clickBtn"></my-list>
-    <expired-list :bottomNav="bottomNav"></expired-list>
+    <book-list :bottomNav="bottomNav" @click-new-btn="clickNewBtn" @click-item="clickItem" @click-btn="clickBtn"></book-list>
+    <my-list :bottomNav="bottomNav" @click-item="clickItem" @click-btn="clickBtn"></my-list>
+    <expired-list :bottomNav="bottomNav" @click-notification="clickNotification"></expired-list>
     <v-bottom-nav
             :active.sync="bottomNav"
             :value="true"
@@ -39,7 +39,7 @@
             max-width="290"
     >
       <v-card>
-        <v-card-title class="headline">エラー</v-card-title>
+        <v-card-title class="headline">情報</v-card-title>
         <v-card-text>
           {{dialogMsg}}
         </v-card-text>
@@ -123,6 +123,10 @@
               削除
               <v-icon right dark>delete</v-icon>
             </v-btn>
+            <v-btn block color="#F44236" dark v-show="editorBook.showNotificationBtn" @click="clickNotification(editorBook.bookId)">
+              返却通知
+              <v-icon right dark>notification_important</v-icon>
+            </v-btn>
           </v-form>
         </v-card-text>
         <div style="flex: 1 1 auto;"></div>
@@ -174,10 +178,9 @@
             v => (v && !!v.toString(10).match(/^[0-9\-]+$/)) || '半角数値とハイフンで入力してください'
           ],
           showDeleteBtn: true,
-          headerTitle: '編集'
+          headerTitle: '編集',
+          showNotificationBtn: false
         },
-        search: '',
-        isLending: false,
         loadingBookId: null,
         bottomNav: 'books',
         dialog: false,
@@ -197,60 +200,11 @@
       }
 
     },
-    computed: {
-      books() {
-        const vm = this,
-          search = vm.search,
-          isLending = vm .isLending
-
-        let filtered = this.$store.state.books.filter((book) => {
-
-          if (((book.title.indexOf(search) !== -1) || (book.publisher.indexOf(search) !== -1) || (book.anthor.indexOf(search) !== -1))) {
-
-            if (isLending) {
-
-              return book.isLending
-
-            } else {
-
-              return true
-
-            }
-
-          } else {
-
-            return false
-
-          }
-
-        })
-
-        return filtered
-      },
-      myBooks() {
-        let filtered = this.$store.state.books.filter((book) => {
-
-          return book.isMine && book.isLending
-
-        })
-
-        return filtered
-      },
-      expiredBooks() {
-        let filtered = this.$store.state.books.filter((book) => {
-
-          return book.isExpired
-
-        })
-
-        return filtered
-      }
-    },
     methods: {
-      dblclickItem(bookId) {
+      clickItem(bookId) {
         const vm = this,
-          targetBookId = vm.books.findIndex(item => item.book_id === bookId),
-          targetBook = vm.books[targetBookId]
+          targetBookId = this.$store.state.books.findIndex(item => item.book_id === bookId),
+          targetBook = this.$store.state.books[targetBookId]
 
         vm.editorBook.bookId = targetBook.book_id
         vm.editorBook.title = targetBook.title
@@ -263,12 +217,14 @@
         vm.editorBook.showDeleteBtn = true
         vm.editorBook.headerTitle = '編集'
 
+        vm.editorBook.showNotificationBtn = targetBook.isLending
+
         vm.showEditor = true
       },
       clickBtn(bookId, isLending) {
         const vm = this,
-          targetBookId = vm.books.findIndex(item => item.book_id === bookId),
-          targetBook = vm.books[targetBookId],
+          targetBookId = this.$store.state.books.findIndex(item => item.book_id === bookId),
+          targetBook = this.$store.state.books[targetBookId],
           loginId = this.$store.state.loginInfo.login_id
 
         // タップされたボタンのローディング開始
@@ -404,9 +360,42 @@
         vm.editorBook.showDeleteBtn = false
         vm.editorBook.headerTitle = '登録'
 
+        vm.editorBook.showNotificationBtn = false;
+
         this.$refs.form.reset()
 
         vm.showEditor = true
+      },
+      clickNotification(bookId) {
+
+        const vm = this,
+          targetBookId = this.$store.state.books.findIndex(item => item.book_id === bookId),
+          targetBook = this.$store.state.books[targetBookId],
+          loginId = this.$store.state.loginInfo.login_id,
+          googleId = targetBook.google_id
+
+        // タップされたボタンのローディング開始
+        vm.loadingBookId = bookId
+
+        fetch(this.API_URL + '/api/push.php', {
+          method: 'POST',
+          body: JSON.stringify({
+            googleId: googleId,
+            loginId: loginId
+          })
+        }).then((res) => {
+          if (res.ok) {
+            vm.dialog = true
+            vm.dialogMsg = '返却の通知をしました'
+          } else {
+            throw new Error()
+          }
+        }).catch(() => {
+          vm.dialog = true
+          vm.dialogMsg = '書籍の貸出に失敗しました'
+        }).finally(() => {
+          vm.loadingBookId = null
+        })
       }
     },
     components: {

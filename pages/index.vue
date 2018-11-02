@@ -15,8 +15,6 @@
 </template>
 
 <script>
-import AppLogo from '~/components/AppLogo.vue'
-
 export default {
   asyncData (context) {
     return context.env
@@ -26,7 +24,7 @@ export default {
       authUrl: '../'
     }
   },
-  mounted() {
+  created() {
 
     if (this.API_URL === '') {
 
@@ -38,37 +36,53 @@ export default {
 
     }
 
-    const cookie = document.cookie.split(';'),
-      loginIdRow = cookie.find(r => r.trim().indexOf('login_id') === 0)
+  },
+  mounted() {
 
-    let loginId;
-    if (loginIdRow) {
-      loginId = loginIdRow.split('=')[1]
-    }
-
-    if (!loginId) {
-      return
-    }
-
-    const params = new URLSearchParams()
-    params.set('loginId', loginId)
-    fetch(this.API_URL + '/api/auth.php?' + params.toString()).then((response) => {
-      if (response.ok) {
-        return response.json();
-      }
-    }).then((loginUserInfo) => {
-      this.$store.dispatch('setLoginUserInfo', loginUserInfo)
-      this.$router.push('/user')
-    })
+    this.moveUserPage()
 
   },
   methods: {
     clickBooks() {
-      this.$router.push('/user')
+
+      this.moveUserPage()
+
+    },
+    moveUserPage() {
+
+      const cookie = document.cookie.split(';'),
+        loginIdRow = cookie.find(r => r.trim().indexOf('login_id') === 0)
+
+      let loginId;
+      if (loginIdRow) {
+        loginId = loginIdRow.split('=')[1]
+      }
+
+      if (!loginId) {
+        return
+      }
+
+      const params = new URLSearchParams()
+      params.set('loginId', loginId)
+      fetch(this.API_URL + '/api/auth.php?' + params.toString()).then((response) => {
+
+        if (response.ok) {
+
+          return response.json()
+
+        }
+
+      }).then((loginUserInfo) => {
+
+        this.$OneSignal.push(['sendTag', 'googleId', loginUserInfo.google_id, (tagsSent) => {
+          console.log(tagsSent)
+        }])
+        this.$store.dispatch('setLoginUserInfo', loginUserInfo)
+        this.$router.push('/user')
+
+      })
+
     }
-  },
-  components: {
-    AppLogo
   }
 }
 </script>

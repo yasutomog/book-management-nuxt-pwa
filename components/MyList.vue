@@ -21,7 +21,6 @@
                       :disabled="loadingBookId === item.book_id"
                       color="#FF8A65"
                       class="white--text"
-                      ripple
                       fab
               >
                 <v-icon dark>undo</v-icon>

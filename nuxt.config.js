@@ -3,6 +3,11 @@ const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
     base: '/book-management-nuxt-pwa/'
   }
 } : {}
+const importScripts = process.env.DEPLOY_ENV === 'GH_PAGES' ? [
+  '/book-management-nuxt-pwa/sw.js'
+] : [
+  '/sw.js'
+]
 module.exports = {
   ...routerBase,
   /*
@@ -55,6 +60,7 @@ module.exports = {
     { src: '~assets/sass/main.scss', lang: 'scss' }
   ],
   modules: [
+    '@nuxtjs/onesignal',
     '@nuxtjs/pwa',
     '@nuxtjs/vuetify',
     '@nuxtjs/font-awesome'
@@ -125,6 +131,16 @@ module.exports = {
         "type": "image/png"
       }
     ]
+  },
+  oneSignal: {
+    init: {
+      appId: '',
+      allowLocalhostAsSecureOrigin: true,
+      welcomeNotification: {
+        disable: true
+      }
+    },
+    importScripts: importScripts
   },
   mode: 'spa',
   workbox: {

@@ -36,7 +36,6 @@
           <v-list-tile
                   :key="item.book_id"
                   avatar
-                  ripple
                   @click="clickItem(item.book_id)"
           >
             <v-list-tile-content>
