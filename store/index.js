@@ -30,14 +30,13 @@ const store = () => new Vuex.Store({
     },
     getBooks(state, json) {
       json.forEach((book) => {
-
         // レンタル中の判定
-        let lendDate = Date.parse(book.max_lend_date),
-          borrowDate = Date.parse(book.max_borrow_date)
+        let lendDate = book.max_lend_date === null ? null : Date.parse(book.max_lend_date.replace(' ', 'T')),
+          borrowDate = book.max_borrow_date === null ? null : Date.parse(book.max_borrow_date.replace(' ', 'T'))
         book.isLending = false
-        if (book.max_lend_date === null) {
+        if (lendDate === null) {
           book.isLending = false
-        } else if (book.max_borrow_date === null) {
+        } else if (borrowDate === null) {
           book.isLending = true
         } else {
           if (lendDate > borrowDate) {
@@ -46,7 +45,7 @@ const store = () => new Vuex.Store({
         }
 
         // 新作（発売日が1ヶ月以内）の判定
-        let publiction = Date.parse(book.publiction),
+        let publiction = Date.parse(book.publiction.replace(' ', 'T')),
           currentDate = new Date(),
           oneMonthAgo = currentDate.setMonth(currentDate.getMonth() - 1)
         book.isNew = (publiction > oneMonthAgo)
@@ -55,7 +54,7 @@ const store = () => new Vuex.Store({
         book.isExpired = false
         book.isMine = false
         if (book.isLending) {
-          let lendDate = new Date(book.max_lend_date),
+          let lendDate = new Date(book.max_lend_date.replace(' ', 'T')),
             lendMonthLater = lendDate.setMonth(lendDate.getMonth() + 1),
             currentMilliSec = currentDate.getTime()
 
@@ -66,7 +65,6 @@ const store = () => new Vuex.Store({
           book.isMine = (book.google_id === state.loginInfo.google_id)
 
         }
-
       })
       state.books = json
     }
