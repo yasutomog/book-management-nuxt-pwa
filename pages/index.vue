@@ -6,7 +6,7 @@
         書籍一覧へ
         <v-icon right dark>library_books</v-icon>
       </v-btn>
-      <v-btn block round outline color="grey darken-1" dark :href="authUrl" target="_blank">
+      <v-btn block round outline color="grey darken-1" dark @click="clickAuth" target="_blank">
         Google認証へ
         <v-icon right dark>lock_open</v-icon>
       </v-btn>
@@ -43,6 +43,11 @@ export default {
 
   },
   methods: {
+    clickAuth() {
+
+      window.open (this.authUrl, "authwindow", "width=400,height=300");
+
+    },
     clickBooks() {
 
       this.moveUserPage()
@@ -64,7 +69,7 @@ export default {
 
       const params = new URLSearchParams()
       params.set('loginId', loginId)
-      fetch(this.API_URL + '/api/auth.php?' + params.toString()).then((response) => {
+      fetch(this.API_URL + '/api/auth?' + params.toString()).then((response) => {
 
         if (response.ok) {
 
@@ -72,12 +77,12 @@ export default {
 
         }
 
-      }).then((loginUserInfo) => {
-
-        this.$OneSignal.push(['sendTag', 'googleId', loginUserInfo.google_id, (tagsSent) => {
+      }).then((res) => {
+        const loginInfo = res.loginInfo
+        this.$OneSignal.push(['sendTag', 'googleId', loginInfo.google_id, (tagsSent) => {
           console.log(tagsSent)
         }])
-        this.$store.dispatch('setLoginUserInfo', loginUserInfo)
+        this.$store.dispatch('setLoginUserInfo', loginInfo)
         this.$router.push('/user')
 
       })

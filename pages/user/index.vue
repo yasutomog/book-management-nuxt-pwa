@@ -14,7 +14,7 @@
               flat
               value="books"
       >
-        <span>書籍一覧</span>
+        <span>書籍</span>
         <v-icon>library_books</v-icon>
       </v-btn>
       <v-btn
@@ -191,7 +191,50 @@
 
       if (this.$store.state.loginInfo === null) {
 
-        this.$router.push('/')
+        const cookie = document.cookie.split(';'),
+          loginIdRow = cookie.find(r => r.trim().indexOf('login_id') === 0)
+
+        let loginId;
+        if (loginIdRow) {
+          loginId = loginIdRow.split('=')[1]
+        }
+
+        if (!loginId) {
+
+          this.$router.push('/')
+
+        }
+
+        const params = new URLSearchParams()
+        params.set('loginId', loginId)
+        fetch(this.API_URL + '/api/auth?' + params.toString()).then((response) => {
+
+          if (response.ok) {
+
+            return response.json()
+
+          }
+
+        }).then((res) => {
+
+          const loginInfo = res.loginInfo
+          this.$OneSignal.push(['sendTag', 'googleId', loginInfo.google_id, (tagsSent) => {
+            console.log(tagsSent)
+          }])
+
+          this.$store.dispatch('setLoginUserInfo', loginInfo).then(() => {
+
+            debugger;
+            this.getBooks()
+
+          })
+
+
+        }).catch(() => {
+
+          this.$router.push('/')
+
+        })
 
       } else {
 
@@ -254,7 +297,7 @@
         const vm = this,
           bookId = targetBook['book_id']
 
-        fetch(this.API_URL + '/api/borrow.php', {
+        fetch(this.API_URL + '/api/borrow', {
           method: 'POST',
           body: JSON.stringify({
             bookId: bookId,
@@ -277,9 +320,9 @@
       returnBook(loginId, targetBook) {
 
         const vm = this,
-          lbId = targetBook['max_id']
+          lbId = targetBook['id']
 
-        fetch(this.API_URL + '/api/return.php', {
+        fetch(this.API_URL + '/api/return', {
           method: 'POST',
           body: JSON.stringify({
             lbId: lbId,
@@ -305,7 +348,7 @@
           editorBook = vm.editorBook,
           loginId = this.$store.state.loginInfo.login_id
 
-        fetch(this.API_URL + '/api/edit.php', {
+        fetch(this.API_URL + '/api/edit', {
           method: 'POST',
           body: JSON.stringify({
             loginId: loginId,
@@ -335,7 +378,7 @@
           editorBook = vm.editorBook,
           loginId = this.$store.state.loginInfo.login_id
 
-        fetch(this.API_URL + '/api/delete.php', {
+        fetch(this.API_URL + '/api/delete', {
           method: 'POST',
           body: JSON.stringify({
             loginId: loginId,
@@ -377,7 +420,7 @@
         // タップされたボタンのローディング開始
         vm.loadingBookId = bookId
 
-        fetch(this.API_URL + '/api/push.php', {
+        fetch(this.API_URL + '/api/push', {
           method: 'POST',
           body: JSON.stringify({
             googleId: googleId,

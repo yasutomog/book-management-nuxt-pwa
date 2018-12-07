@@ -1,11 +1,11 @@
 {
-  "name": "book-management-nuxt-pwa",
+  "name": "pwa",
   "version": "1.0.0",
   "description": "Nuxt.js project",
   "author": "yasutomog <yasutomo.goto@gmail.com>",
   "private": true,
   "scripts": {
-    "dev": "PORT=3334 nuxt",
+    "dev": "PORT=3339 nuxt",
     "build": "nuxt build",
     "start": "PORT=3335 nuxt start",
     "generate": "nuxt generate",

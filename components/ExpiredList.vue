@@ -7,6 +7,10 @@
                   :key="item.book_id"
                   avatar
           >
+            <v-list-tile-avatar>
+              <img :src="item.thumbnail_uri" v-show="item.thumbnail_uri !== null">
+              <img src="~/assets/no_image.png" v-show="item.thumbnail_uri === null">
+            </v-list-tile-avatar>
             <v-list-tile-content>
               <v-list-tile-title>{{ item.title }}</v-list-tile-title>
               <v-list-tile-sub-title class="text--primary">{{ item.publisher }}</v-list-tile-sub-title>
@@ -77,5 +81,18 @@
   }
   .theme--light.application .text--primary span {
     color: #ff5252 !important;
+  }
+  .v-list__tile__title {
+    font-size: 14px;
+  }
+  .v-list__tile__sub-title {
+    font-size: 12px;
+  }
+  .v-list__tile__avatar > div {
+    border-radius: 0;
+    height: unset !important;
+    & > img {
+      border-radius: 0;
+    }
   }
 </style>

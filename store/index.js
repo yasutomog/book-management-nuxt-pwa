@@ -13,14 +13,14 @@ const store = () => new Vuex.Store({
     getBooks({ commit, state }, p) {
       const params = new URLSearchParams()
       params.set('loginId', p.loginId)
-      return fetch(p.apiBaseUrl + '/api/books.php?' + params.toString()).then((response) => {
+      return fetch(p.apiBaseUrl + '/api/books?' + params.toString()).then((response) => {
         if (!response.ok) {
           throw new Error(response.status)
         } else {
           return response.json();
         }
-      }).then((json) => {
-        commit('getBooks', json)
+      }).then((res) => {
+        commit('getBooks', res.books)
       })
     }
   },
@@ -28,11 +28,11 @@ const store = () => new Vuex.Store({
     setLoginUserInfo(state, loginUserInfo) {
       state.loginInfo = loginUserInfo
     },
-    getBooks(state, json) {
-      json.forEach((book) => {
+    getBooks(state, books) {
+      books.forEach((book) => {
         // レンタル中の判定
-        let lendDate = book.max_lend_date === null ? null : Date.parse(book.max_lend_date.replace(' ', 'T')),
-          borrowDate = book.max_borrow_date === null ? null : Date.parse(book.max_borrow_date.replace(' ', 'T'))
+        let lendDate = book.lend_date === null ? null : Date.parse(book.lend_date.replace(' ', 'T')),
+          borrowDate = book.borrow_date === null ? null : Date.parse(book.borrow_date.replace(' ', 'T'))
         book.isLending = false
         if (lendDate === null) {
           book.isLending = false
@@ -54,7 +54,7 @@ const store = () => new Vuex.Store({
         book.isExpired = false
         book.isMine = false
         if (book.isLending) {
-          let lendDate = new Date(book.max_lend_date.replace(' ', 'T')),
+          let lendDate = new Date(book.lend_date.replace(' ', 'T')),
             lendMonthLater = lendDate.setMonth(lendDate.getMonth() + 1),
             currentMilliSec = currentDate.getTime()
 
@@ -66,7 +66,7 @@ const store = () => new Vuex.Store({
 
         }
       })
-      state.books = json
+      state.books = books
     }
   }
 })

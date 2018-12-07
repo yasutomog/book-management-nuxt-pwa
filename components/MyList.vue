@@ -9,6 +9,10 @@
                   ripple
                   @click="clickItem(item.book_id)"
           >
+            <v-list-tile-avatar>
+              <img :src="item.thumbnail_uri" v-show="item.thumbnail_uri !== null">
+              <img src="~/assets/no_image.png" v-show="item.thumbnail_uri === null">
+            </v-list-tile-avatar>
             <v-list-tile-content>
               <v-list-tile-title>{{ item.title }}</v-list-tile-title>
               <v-list-tile-sub-title class="text--primary">{{ item.publisher }}</v-list-tile-sub-title>
@@ -71,5 +75,18 @@
 <style lang="scss" scoped>
   .book-list {
     padding: 56px 0 56px;
+  }
+  .v-list__tile__title {
+    font-size: 14px;
+  }
+  .v-list__tile__sub-title {
+    font-size: 12px;
+  }
+  .v-list__tile__avatar > div {
+    border-radius: 0;
+    height: unset !important;
+    & > img {
+      border-radius: 0;
+    }
   }
 </style>
