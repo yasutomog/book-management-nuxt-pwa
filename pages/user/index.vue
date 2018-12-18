@@ -188,60 +188,12 @@
       }
     },
     mounted() {
+      const loginInfo = this.$store.state.loginInfo
+      this.$OneSignal.push(['sendTag', 'googleId', loginInfo.google_id, (tagsSent) => {
+        console.log('sendTag', tagsSent)
+      }])
 
-      if (this.$store.state.loginInfo === null) {
-
-        const cookie = document.cookie.split(';'),
-          loginIdRow = cookie.find(r => r.trim().indexOf('login_id') === 0)
-
-        let loginId;
-        if (loginIdRow) {
-          loginId = loginIdRow.split('=')[1]
-        }
-
-        if (!loginId) {
-
-          this.$router.push('/')
-
-        }
-
-        const params = new URLSearchParams()
-        params.set('loginId', loginId)
-        fetch(this.API_URL + '/api/auth?' + params.toString()).then((response) => {
-
-          if (response.ok) {
-
-            return response.json()
-
-          }
-
-        }).then((res) => {
-
-          const loginInfo = res.loginInfo
-          this.$OneSignal.push(['sendTag', 'googleId', loginInfo.google_id, (tagsSent) => {
-            console.log(tagsSent)
-          }])
-
-          this.$store.dispatch('setLoginUserInfo', loginInfo).then(() => {
-
-            debugger;
-            this.getBooks()
-
-          })
-
-
-        }).catch(() => {
-
-          this.$router.push('/')
-
-        })
-
-      } else {
-
-        this.getBooks()
-
-      }
-
+      this.getBooks()
     },
     methods: {
       clickItem(bookId) {

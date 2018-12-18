@@ -1,8 +1,17 @@
 const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
   router: {
-    base: '/pwa/'
+    base: '/pwa/',
+    middleware: [
+      'auth'
+    ]
   }
-} : {}
+} : {
+  router: {
+    middleware: [
+      'auth'
+    ]
+  }
+}
 const importScripts = process.env.DEPLOY_ENV === 'GH_PAGES' ? [
   '/pwa/sw.js'
 ] : [
@@ -63,7 +72,8 @@ module.exports = {
     '@nuxtjs/onesignal',
     '@nuxtjs/pwa',
     '@nuxtjs/vuetify',
-    '@nuxtjs/font-awesome'
+    '@nuxtjs/font-awesome',
+    '@nuxtjs/axios'
   ],
   manifest: {
     name: 'book-management',
@@ -149,7 +159,10 @@ module.exports = {
     swURL: '/pwa/sw.js',
     swScope: '/pwa'
   },
-  plugins: [{ src: '~/plugins/routerOption.js', ssr: false }],
+  plugins: [
+    { src: '~/plugins/routerOption.js', ssr: false },
+    { src: '~/plugins/axios.js', ssr: false }
+  ],
   env: {
     API_URL: ''
   }

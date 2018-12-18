@@ -6,7 +6,7 @@
         書籍一覧へ
         <v-icon right dark>library_books</v-icon>
       </v-btn>
-      <v-btn block round outline color="grey darken-1" dark @click="clickAuth" target="_blank">
+      <v-btn block round outline color="grey darken-1" dark @click="openAuthWin" target="_blank">
         Google認証へ
         <v-icon right dark>lock_open</v-icon>
       </v-btn>
@@ -15,81 +15,49 @@
 </template>
 
 <script>
-export default {
-  asyncData (context) {
-    return context.env
-  },
-  data () {
-    return {
-      authUrl: '../'
-    }
-  },
-  created() {
-
-    if (this.API_URL === '') {
-
-      this.authUrl = '../'
-
-    } else {
-
-      this.authUrl = this.API_URL
-
-    }
-
-  },
-  mounted() {
-
-    this.moveUserPage()
-
-  },
-  methods: {
-    clickAuth() {
-
-      window.open (this.authUrl, "authwindow", "width=400,height=300");
-
+  export default {
+    asyncData (context) {
+      return context.env
     },
-    clickBooks() {
-
-      this.moveUserPage()
-
+    data () {
+      return {
+        authUrl: '../'
+      }
     },
-    moveUserPage() {
-
-      const cookie = document.cookie.split(';'),
-        loginIdRow = cookie.find(r => r.trim().indexOf('login_id') === 0)
-
-      let loginId;
-      if (loginIdRow) {
-        loginId = loginIdRow.split('=')[1]
+    created() {
+      if (this.API_URL === '') {
+        this.authUrl = '../'
+      } else {
+        this.authUrl = this.API_URL
       }
-
-      if (!loginId) {
-        return
-      }
-
-      const params = new URLSearchParams()
-      params.set('loginId', loginId)
-      fetch(this.API_URL + '/api/auth?' + params.toString()).then((response) => {
-
-        if (response.ok) {
-
-          return response.json()
-
-        }
-
-      }).then((res) => {
-        const loginInfo = res.loginInfo
-        this.$OneSignal.push(['sendTag', 'googleId', loginInfo.google_id, (tagsSent) => {
-          console.log(tagsSent)
-        }])
-        this.$store.dispatch('setLoginUserInfo', loginInfo)
+    },
+    mounted() {
+    },
+    methods: {
+      /**
+       * 認証ボタンクリックイベント処理
+       */
+      openAuthWin() {
+        const popup = window.open (this.authUrl, "authwindow", "width=400,height=300")
+        window.addEventListener('message', (event) => {
+          this.moveUserPage()
+          popup.close();
+        }, false);
+      },
+      /**
+       * 書籍一覧ボタンのクリックイベント処理
+       */
+      clickBooks() {
+        this.moveUserPage()
+      },
+      /**
+       * 書籍一覧へ移動
+       */
+      moveUserPage() {
         this.$router.push('/user')
-
-      })
-
+      }
     }
   }
-}
 </script>
 
 <style>
