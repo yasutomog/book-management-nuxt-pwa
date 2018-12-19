@@ -11,13 +11,9 @@ const store = () => new Vuex.Store({
       commit('setLoginUserInfo', loginUserInfo)
     },
     getBooks({ commit, state }, p) {
-      const params = new URLSearchParams()
-      params.set('loginId', p.loginId)
-      return fetch(p.apiBaseUrl + '/api/books?' + params.toString()).then((response) => {
-        if (!response.ok) {
-          throw new Error(response.status)
-        } else {
-          return response.json();
+      return this.$axios.$get('/api/books', {
+        params: {
+          loginId: p.loginId
         }
       }).then((res) => {
         commit('getBooks', res.books)

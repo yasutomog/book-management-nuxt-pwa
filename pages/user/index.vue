@@ -236,6 +236,7 @@
         }
       },
       getBooks() {
+
         const loginId = this.$store.state.loginInfo.login_id
         this.$store.dispatch('getBooks', {
           loginId: loginId,
@@ -243,24 +244,18 @@
         }).catch((err) => {
           this.$router.push('/')
         })
+
       },
       borrowBook(loginId, targetBook) {
 
         const vm = this,
           bookId = targetBook['book_id']
 
-        fetch(this.API_URL + '/api/borrow', {
-          method: 'POST',
-          body: JSON.stringify({
-            bookId: bookId,
-            loginId: loginId
-          })
-        }).then((res) => {
-          if (res.ok) {
-            this.getBooks()
-          } else {
-            throw new Error()
-          }
+        const params = new URLSearchParams()
+        params.append('bookId', bookId)
+        params.append('loginId', loginId)
+        this.$axios.$post('/api/borrow', params).then((res) => {
+          this.getBooks()
         }).catch(() => {
           vm.dialog = true
           vm.dialogMsg = '書籍の貸出に失敗しました'
@@ -274,19 +269,11 @@
         const vm = this,
           lbId = targetBook['id']
 
-        fetch(this.API_URL + '/api/return', {
-          method: 'POST',
-          body: JSON.stringify({
-            lbId: lbId,
-            loginId: loginId
-          })
-        }).then((res) => {
-          vm.loadingBookId = null
-          if (res.ok) {
-            this.getBooks()
-          } else {
-            throw new Error()
-          }
+        const params = new URLSearchParams()
+        params.append('lbId', lbId)
+        params.append('loginId', loginId)
+        this.$axios.$post('/api/return', params).then((res) => {
+          this.getBooks()
         }).catch(() => {
           vm.dialog = true
           vm.dialogMsg = '書籍の返却に失敗しました'
@@ -296,28 +283,23 @@
 
       },
       clickSave() {
+
         const vm = this,
           editorBook = vm.editorBook,
           loginId = this.$store.state.loginInfo.login_id
 
-        fetch(this.API_URL + '/api/edit', {
-          method: 'POST',
-          body: JSON.stringify({
-            loginId: loginId,
-            bookId: editorBook.bookId,
-            title: editorBook.title,
-            anthor: editorBook.anthor,
-            publiction: editorBook.publiction,
-            publisher: editorBook.publisher,
-            isbn: editorBook.isbn
-          })
-        }).then((res) => {
-          if (res.ok) {
-            vm.getBooks()
-            vm.showEditor = false
-          } else {
-            throw new Error()
-          }
+        const params = new URLSearchParams()
+        params.append('loginId', loginId)
+        params.append('bookId', editorBook.bookId)
+        params.append('title', editorBook.title)
+        params.append('anthor', editorBook.anthor)
+        params.append('publiction', editorBook.publiction)
+        params.append('publisher', editorBook.publisher)
+        params.append('isbn', editorBook.isbn)
+
+        this.$axios.$post('/api/edit', params).then((res) => {
+          vm.getBooks()
+          vm.showEditor = false
         }).catch(() => {
           vm.dialog = true
           vm.dialogMsg = '書籍の編集に失敗しました'
@@ -326,28 +308,24 @@
 
       },
       clickDelete() {
+
         const vm = this,
           editorBook = vm.editorBook,
           loginId = this.$store.state.loginInfo.login_id
 
-        fetch(this.API_URL + '/api/delete', {
-          method: 'POST',
-          body: JSON.stringify({
-            loginId: loginId,
-            bookId: editorBook.bookId
-          })
-        }).then((res) => {
-          if (res.ok) {
-            vm.getBooks()
-            vm.showEditor = false
-          } else {
-            throw new Error()
-          }
+        const params = new URLSearchParams()
+        params.append('loginId', loginId)
+        params.append('bookId', editorBook.bookId)
+
+        this.$axios.$post('/api/delete', params).then((res) => {
+          vm.getBooks()
+          vm.showEditor = false
         }).catch(() => {
           vm.dialog = true
           vm.dialogMsg = '書籍の削除に失敗しました'
         }).finally(() => {
         })
+
       },
       clickNewBtn() {
         const vm = this
@@ -372,25 +350,20 @@
         // タップされたボタンのローディング開始
         vm.loadingBookId = bookId
 
-        fetch(this.API_URL + '/api/push', {
-          method: 'POST',
-          body: JSON.stringify({
-            googleId: googleId,
-            loginId: loginId
-          })
-        }).then((res) => {
-          if (res.ok) {
-            vm.dialog = true
-            vm.dialogMsg = '返却の通知をしました'
-          } else {
-            throw new Error()
-          }
+        const params = new URLSearchParams()
+        params.append('loginId', loginId)
+        params.append('googleId', googleId)
+
+        this.$axios.$post('/api/push', params).then((res) => {
+          vm.dialog = true
+          vm.dialogMsg = '返却の通知をしました'
         }).catch(() => {
           vm.dialog = true
           vm.dialogMsg = '書籍の貸出に失敗しました'
         }).finally(() => {
           vm.loadingBookId = null
         })
+
       }
     },
     components: {
